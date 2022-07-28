@@ -45,22 +45,62 @@ var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
+  // modal was triggered 
+$("#task-form-modal").on("show.bs.modal", function() {
+  // clear values 
+  $("#modalTaskDescription, #modalDueDate").val("");
+});
+
+  // modal is fully visible 
+$("#task-form-modal").on("shown.bs.modal", function() {
+   // highlight textarea 
+   $("#modalTaskDescription").trigger("focus");
+});
+
+  // save button in modal was clicked 
+$("#task-form-modal .btn-primary").click(function() {
+   // get form values 
+  var taskText = $("#modalTaskDescription").val();
+  var taskDate = $("#modalDueDate").val();
+
+  if (taskText && taskDate) {
+    createTask(taskText, taskDate, "toDo");
+
+    // close modal 
+    $("#task-form-modal").modal("hide");
+
+    // save in tasks array 
+    tasks.toDo.push({
+      text: taskText,
+      date: taskDate
+    });
+
+    saveTasks();
+  }
+});
+
+
+  // task text was clicked 
 $(".list-group").on("click", "p", function() {
+   // get current text of a p element 
   var text = $(this)
   .text()
   .trim();
-  var textInput = $("<textarea")
-  .addClass("form-control")
-  .val(text)
-  $(this).replaceWith(textInput)
+
+   // replace p element with a new textarea 
+  var textInput = $("<textarea>").addClass("form-control").val(text);
+  $(this).replaceWith(textInput);
+
+
+    // auto focus new element 
   textInput.trigger("focus");
 });
 
-$(".list-group").on("blur", "textarea", function(){
+
+    // editable field was non-focused 
+$(".list-group").on("blur", "textarea", function() {
     // get the textarea's current value/text
-    var text = $(this)
-      .val()
-      .trim();
+    var text = $(this).val();
 
     // get the parent ul's id attribute
     var status = $(this)
@@ -72,6 +112,9 @@ $(".list-group").on("blur", "textarea", function(){
     var index = $(this)
       .closest(".list-group-item")
       .index();
+
+
+      // update task in an array and re-save to localStorage
     tasks[status][index].text = text;
     saveTasks();
 
@@ -135,40 +178,6 @@ $(".list-group").on("blur", "textarea", function(){
       $(this).replaceWith(taskSpan);
   });
 
-
-// modal was triggered
-$("#task-form-modal").on("show.bs.modal", function() {
-  // clear values
-  $("#modalTaskDescription, #modalDueDate").val("");
-});
-
-// modal is fully visible
-$("#task-form-modal").on("shown.bs.modal", function() {
-  // highlight textarea
-  $("#modalTaskDescription").trigger("focus");
-});
-
-// save button in modal was clicked
-$("#task-form-modal .btn-primary").click(function() {
-  // get form values
-  var taskText = $("#modalTaskDescription").val();
-  var taskDate = $("#modalDueDate").val();
-
-  if (taskText && taskDate) {
-    createTask(taskText, taskDate, "toDo");
-
-    // close modal
-    $("#task-form-modal").modal("hide");
-
-    // save in tasks array
-    tasks.toDo.push({
-      text: taskText,
-      date: taskDate
-    });
-
-    saveTasks();
-  }
-});
 
 // remove all tasks
 $("#remove-tasks").on("click", function() {
